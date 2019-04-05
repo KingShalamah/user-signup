@@ -71,10 +71,10 @@ div {
 
 <div>
  <form method='POST'>
-  <span class="alert">{0}</span><input type="text" name="username" value="{4}" placeholder="Username">
-  <span class="alert">{1}</span><input type="password" name="password" placeholder="Password">
-  <span class="alert">{2}</span><input type="password" name="check_password" placeholder="Verify Password">
-  <span class="alert">{3}</span><input type="text" name="email" value="{5}" placeholder="Email (Optional)">
+  <span class="alert">{{username_alert}}</span><input type="text" name="username" value="{{username}}" placeholder="Username">
+  <span class="alert">{{password_alert}}</span><input type="password" name="password" placeholder="Password">
+  <span class="alert">{{verifypw_alert}}</span><input type="password" name="check_password" placeholder="Verify Password">
+  <span class="email">{{email_alert}}</span><input type="text" name="email" value="{{email}}" placeholder="Email (Optional)">
   <input type="submit" value="Register">
  </form>
 </div>

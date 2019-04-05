@@ -1,98 +1,14 @@
 from flask import Flask, request
+import os
+import jinja2
+
+template_dir = os.path.join(os.path.dirname(__file__),'templates')
+jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir))
+
 
 app = Flask(__name__)
 
 app.config['DEBUG'] = True     # Display errors in the browser too
-
-page_header = """
-<!DOCTYPE HTML>
-<html>
-<head>
- <title>MiniBook</title>
-
- <style>
- input[type=text], select {
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 18px;
-}
-
-input[type=password], select {
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 18px;
-}
-
-input[type=submit] {
-  width: 100%;
-  background-color: #3b5998;
-  color: white;
-  padding: 14px 20px;
-  margin: 8px 0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 18px;
-}
-
-input[type=submit]:hover {
-  background-color: #8b9dc3;
-}
-
-div {
-  width: 65%;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 35px;
-  margin-bottom: 35px;
-  border-radius: 5px;
-  background-color: #f2f2f2;
-  padding: 20px;
-}
-
-.email {
-  color: blue;
-}
-
-.alert {
-  color: red;
-}
-</style>
-
-</head>
-
-<body>
-<div>
-<h1>Sign Up for MiniBook</h1>
-</div>
-"""
-
-form = """
-<div>
-<form method='POST'>
- <span class="alert">{0}</span><input type="text" name="username" value="{4}" placeholder="Username">
- <span class="alert">{1}</span><input type="password" name="password" placeholder="Password">
- <span class="alert">{2}</span><input type="password" name="check_password" placeholder="Verify Password">
- <span class="alert">{3}</span><input type="text" name="email" value="{5}" placeholder="Email (Optional)">
- <input type="submit" value="Register">
-</form>
-</div>
-"""
-
-page_footer = """
-</body>
-</html>
-"""
 
 @app.route("/", methods=['POST'])
 def signup():
@@ -127,27 +43,29 @@ def signup():
         if len(email) > 0 and email_activate == False:
             email_status = "The email you supplied is not valid."
             activate = False
-
+    
     if activate == False:
         message = "Your registration could not be processed.<br />" + username_status + "<br />" + password_status + "<br />" + verified_status
-        return page_header + form.format(username_status,password_status,verified_status,email_status,username,email) + page_footer
+        template = jinja_env.get_template('index.html')
+        return template.render(username_alert=username_status,password_alert=password_status,verifypw_alert=verified_status,email_alert=email_status,username=username,email=email)
 
     if activate != False and email_activate == False:
-        message = "Welcome to MiniBook! " + "<br />Your username is: " + username 
-        return page_header + "<div>" + "<h2>" + message + "<br />" + email_status + "</h2>" + "</div>" + page_footer
-    
+        template = jinja_env.get_template('welcome.html')
+        return template.render(username=username,email_status=email_status)
+
     if activate != False and email_activate != False:
         message = "Welcome to MiniBook! " + "<br />Your username is: " + username
-        email_message = "Your account confirmation link was sent to:<br /> " + '<span class="email">' + email + "</span>" 
-        return page_header + "<div>" + "<h2>" + message + "<br />" + email_message + "</h2>" + "</div>" + page_footer
+        email_message = "Your account confirmation link was sent to:<br /> " + '<span class="email">' + email + "</span>"
+
+        template = jinja_env.get_template('welcome.html')
+        return template.render(username=username,email_status=email_message)
 
 @app.route("/", methods=['GET','POST'])
 def index():
-    if request.method == "GET":
-        content = page_header + form.format("","","","","","") + page_footer
-    elif request.method == "POST":
-        content = page_header + form.format("","","","",{4},{5}) + page_footer
-    return content
+    template = jinja_env.get_template('index.html')
+    return template.render()
+
+    
 
 
 app.run()
